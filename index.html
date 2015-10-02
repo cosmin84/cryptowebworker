@@ -6,8 +6,8 @@
 <body>
 	<div id="output"></div>
 	<script>
-		// Number of to be generated
-		var stringsCount = 200;
+		// Number of iterations
+		var iterations = 200;	
 
 		// The div for the output
 		var outputDiv = document.getElementById('output');
@@ -16,26 +16,20 @@
 		if (window.Worker) {
 			// Create a new worker
 			var worker = new Worker('worker.js');
-
 			
-			for (i = 0; i < stringsCount; i++) {
-				// Create a random string
-				var randomString = Math.random().toString(36).substring(2);
-
-				// Concatenate string with itself
-				for (c = 0; c < 10; c++) {
-					randomString += randomString.concat(randomString);
-				}
-
-				// Send string to worker
-				worker.postMessage(randomString);
+			for (i = 0; i < iterations; i++) {
+				// Start worker
+				worker.postMessage("start");
 			}
 			
 			// Get response from worker
-			worker.onmessage = function(e) {				
-				// Display encrypted strings
+			worker.onmessage = function(e) {
+				// Convert response to a JSON object
+				var response = JSON.parse(e.data);				
+				
+				// Display encrypted string and opperation time
 				var paragraph = document.createElement('p');
-				var content = document.createTextNode(e.data);
+				var content = document.createTextNode('Encrypted string: ' + response.hash + ' - Duration: ' + response.time + ' ms.');
 				paragraph.appendChild(content);
 				outputDiv.appendChild(paragraph);
 			}
