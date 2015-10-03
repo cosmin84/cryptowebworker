@@ -7,32 +7,29 @@
 	<div id="output"></div>
 	<script>
 		// Number of iterations
-		var iterations = 200;	
+		var iterations = 1000;
+
+		// Number of workers
+		var workers = 10;		
 
 		// The div for the output
 		var outputDiv = document.getElementById('output');
 
 		// Check if Web Workers are supported by the browser
 		if (window.Worker) {
-			// Create a new worker
-			var worker = new Worker('worker.js');
-			
-			for (i = 0; i < iterations; i++) {
+			for (i = 0; i < workers; i++) {
+				// Create a new worker
+				var worker = new Worker('worker.js');
+
 				// Start worker
-				worker.postMessage("start");
-			}
-			
-			// Get response from worker
-			worker.onmessage = function(e) {
-				// Convert response to a JSON object
-				var response = JSON.parse(e.data);				
-				
-				// Display encrypted string and opperation time
-				var paragraph = document.createElement('p');
-				var content = document.createTextNode('Encrypted string: ' + response.hash + ' - Duration: ' + response.time + ' ms.');
-				paragraph.appendChild(content);
-				outputDiv.appendChild(paragraph);
-			}
+				worker.postMessage({workerIndex: i, iterations: iterations, command: 'start'});
+
+				// Get response from worker
+				worker.onmessage = function(e) {
+					// Log response to console					
+					console.log(e.data);
+				}
+			}					
 		}		
 	</script>
 </body>
